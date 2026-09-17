@@ -46,6 +46,19 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 
 Initialize the Python 3.11+ project, declare Streamlit, Pandas, and Plotly dependencies, and document how to install dependencies and run the dashboard locally.
 
+Acceptance criteria:
+
+- [x] Python 3.11+ verified and the existing virtual environment reused.
+- [x] Streamlit, Pandas, Plotly, and pytest pinned in requirements.txt and installed successfully.
+- [x] Virtual environment, Python bytecode, and pytest cache excluded by .gitignore.
+- [x] Minimal Streamlit starter page and README setup, launch, and test instructions complete.
+- [x] Dependency check, starter-page test, server health check, and user visual verification passed.
+- [x] Verification evidence recorded below.
+
+Commit: `0c09624` (TASK-1: Set up Python environment and Streamlit starter app)
+
+Notes: Codex initially left the completed TASK-1 work uncommitted; this was corrected in 0c09624. The existing venv was reused at the user's request, and the user performed visual verification because browser automation was unavailable.
+
 Implementation and verification (2026-09-16):
 
 - Reused the existing `venv/` and confirmed Python 3.14.7.
