@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-1: Set up the environment and project (M1)
-
-Initialize the Python 3.11+ project, declare Streamlit, Pandas, and Plotly dependencies, and document how to install dependencies and run the dashboard locally.
-
 ### TASK-2: Load the data and build the dashboard structure (M2)
 
 Load `data/sales-data.csv`, validate the required columns, and parse date, numeric, and categorical values correctly. Create the basic Streamlit layout and prepare aggregations for the metrics and charts.
@@ -45,3 +41,20 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 ## In Progress
 
 ## Done
+
+### TASK-1: Set up the environment and project (M1)
+
+Initialize the Python 3.11+ project, declare Streamlit, Pandas, and Plotly dependencies, and document how to install dependencies and run the dashboard locally.
+
+Implementation and verification (2026-09-16):
+
+- Reused the existing `venv/` and confirmed Python 3.14.7.
+- Pinned Streamlit 1.64.0, Pandas 2.3.3, Plotly 6.9.0, and pytest 9.1.1 in `requirements.txt`. Installation from that file succeeded; all requirements were already installed.
+- Added the minimal `app.py` with the dashboard title and setup message, plus README setup, launch, dependency-check, and test instructions.
+- Existing `.gitignore` rules cover `venv/`, Python bytecode, and pytest cache. `git check-ignore` confirmed the environment is ignored; no ignore changes were needed.
+- `venv\Scripts\python.exe -m pip check` passed: **No broken requirements found.**
+- The README's Streamlit AppTest command passed: the expected title rendered with no page exceptions, errors, or warnings. The test harness emitted only the `missing ScriptRunContext` warning that Streamlit identifies as ignorable in bare mode.
+- Launched `venv\Scripts\python.exe -m streamlit run app.py --server.headless true --server.address 127.0.0.1 --server.port 8502 --browser.gatherUsageStats false`. The server started without warnings; `/` returned HTTP 200 and `/_stcore/health` returned `ok`.
+- `git diff --check` passed. No pytest tests exist at this milestone; data tests belong to TASK-2.
+- User visually verified the starter dashboard at `http://127.0.0.1:8502`: the ShopSmart Sales Dashboard title, description, and setup-complete message appeared correctly, with no visible errors.
+- All Step 1 deliverables and applicable Definition of Done checks are complete. TASK-1 is Done; TASK-2 remains To Do.

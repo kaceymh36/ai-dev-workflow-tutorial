@@ -108,6 +108,69 @@ Open [pre-work-setup.md](pre-work-setup.md) and work through it first, then cont
 | [Codex companion](codex-companion.md) | For students on a ChatGPT subscription: what to do differently with OpenAI's Codex at each marked point |
 | [Capstone tools](capstone-tools.md) | Appendix: Granola (meeting notes into Claude Code) and Wispr Flow (dictation), for the capstone, not this tutorial |
 
+## Run the dashboard locally
+
+The starter page displays **ShopSmart Sales Dashboard** and a setup message.
+Data loading, metrics, and charts belong to later milestones in [TASKS.md](TASKS.md).
+
+Use Python 3.11 or newer and run commands from the project folder. This project
+has been checked with Python 3.14.7 on Windows. Dependency versions are pinned
+in `requirements.txt`.
+
+### Setup (Windows PowerShell)
+
+For a fresh checkout, create a virtual environment once:
+
+```powershell
+python --version
+python -m venv venv
+```
+
+If `python` is unavailable, try `py`. If neither command is available, use the
+full path to your installed Python executable. Skip environment creation when
+`venv/` already exists, as it does in the current local setup.
+
+Install and check dependencies using the environment's Python directly;
+activation is not required:
+
+```powershell
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe -m pip check
+```
+
+### Launch the dashboard
+
+```powershell
+.\venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Open the URL printed in the terminal, usually `http://localhost:8501`.
+Keep the terminal open while using the dashboard; press **Ctrl+C** to stop it.
+
+### Verify and run tests
+
+Check the starter page with Streamlit's built-in test runner:
+
+```powershell
+.\venv\Scripts\python.exe -c "from streamlit.testing.v1 import AppTest; app = AppTest.from_file('app.py').run(); assert not app.exception; assert not app.error; assert not app.warning; assert app.title[0].value == 'ShopSmart Sales Dashboard'; print('Starter page check passed')"
+```
+
+The test runner may emit a `missing ScriptRunContext` warning identified by
+Streamlit as ignorable in bare mode. This is separate from warnings on the page.
+
+Run the project test suite with:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest -q
+```
+
+There are no pytest tests at TASK-1, so this currently reports no tests collected
+(exit code 5). Data validation and calculation tests will be added in TASK-2.
+
+On macOS/Linux, create the environment with `python3 -m venv venv` and replace
+`.\venv\Scripts\python.exe` in the commands above with `venv/bin/python`.
+Those platforms have not yet been verified for this project.
+
 ## License
 
 This tutorial is provided for educational purposes.

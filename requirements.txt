@@ -1,0 +1,7 @@
+# Application dependencies (versions present in the existing Python 3.14.7 venv).
+streamlit==1.64.0
+pandas==2.3.3
+plotly==6.9.0
+
+# Test runner for validation and calculation tests.
+pytest==9.1.1
