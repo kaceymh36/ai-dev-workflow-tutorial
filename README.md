@@ -108,6 +108,197 @@ Open [pre-work-setup.md](pre-work-setup.md) and work through it first, then cont
 | [Codex companion](codex-companion.md) | For students on a ChatGPT subscription: what to do differently with OpenAI's Codex at each marked point |
 | [Capstone tools](capstone-tools.md) | Appendix: Granola (meeting notes into Claude Code) and Wispr Flow (dictation), for the capstone, not this tutorial |
 
+## Run the dashboard locally
+
+The page loads and validates the CSV, displays **ShopSmart Sales Dashboard** and
+its reporting period, and shows Total Sales and Total Orders in two KPI cards.
+Sales are rounded to whole dollars for display only; calculations retain exact
+cents. Chart rendering belongs to TASK-4 and TASK-5 in [TASKS.md](TASKS.md).
+
+Use Python 3.11 or newer and run commands from the project folder. This project
+has been checked with Python 3.14.7 on Windows. Dependency versions are pinned
+in `requirements.txt`.
+
+### Setup (Windows PowerShell)
+
+For a fresh checkout, create a virtual environment once:
+
+```powershell
+python --version
+python -m venv venv
+```
+
+If `python` is unavailable, try `py`. If neither command is available, use the
+full path to your installed Python executable. Skip environment creation when
+`venv/` already exists, as it does in the current local setup.
+
+Install and check dependencies using the environment's Python directly;
+activation is not required:
+
+```powershell
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe -m pip check
+```
+
+### Launch the dashboard
+
+```powershell
+.\venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Open the URL printed in the terminal, usually `http://localhost:8501`.
+Keep the terminal open while using the dashboard; press **Ctrl+C** to stop it.
+
+### Verify and run tests
+
+Check the page and invalid-data handling with Streamlit's built-in test runner:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest tests/test_app.py -q
+```
+
+The test runner may emit a `missing ScriptRunContext` warning identified by
+Streamlit as ignorable in bare mode. This is separate from warnings on the page.
+
+Run the project test suite with:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest -q
+```
+
+The data tests cover CSV validation and exact summary calculations using temporary
+files without changing the supplied dataset. To run just these tests, use:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest tests/test_sales_data.py -q
+```
+
+On macOS/Linux, create the environment with `python3 -m venv venv` and replace
+`.\venv\Scripts\python.exe` in the commands above with `venv/bin/python`.
+Those platforms have not yet been verified for this project.
+
+### CSV loader (Step 2)
+
+`sales_data.load_sales_data(path)` validates the complete UTF-8 CSV and returns
+a Pandas DataFrame, or raises `SalesDataError` with a correction hint. The page loads
+the CSV once per run using a path relative to `app.py`. Invalid input displays the
+explanation and stops before the KPI and chart areas are rendered.
+
+The loader requires all eight columns: `date`, `order_id`, `product`, `category`,
+`region`, `quantity`, `unit_price`, and `total_amount`. Required values cannot be
+blank. Dates use `YYYY-MM-DD`, IDs must be unique, quantities must be whole
+numbers, and numeric values must be finite. Extra columns are allowed and omitted.
+
+Text is trimmed, IDs retain leading zeros, and dates become Python date values.
+Money is stored as exact Python integers in `unit_price_cents` and
+`total_amount_cents`, replacing the dollar columns. Fractions of a cent are
+rejected rather than rounded. Revenue uses the supplied `total_amount` rather
+than recomputing price times quantity. Dollar formatting belongs to the UI.
+
+### Summary functions and page structure (Step 3)
+
+The summary functions in `sales_data.py` accept the validated, nonempty DataFrame:
+
+- `summarize_kpis(data)` returns `total_sales_cents` and `total_orders` in a dictionary.
+- `monthly_sales(data)` returns a DataFrame with `month` (the first day of each
+  month) and `total_amount_cents`. It separates years, sorts chronologically, and
+  fills missing months with zero only between the first and last observed months.
+- `sales_by_category(data)` and `sales_by_region(data)` return DataFrames with
+  the grouping column and `total_amount_cents`, sorted by descending sales and
+  alphabetically for ties. Every category and region is included.
+
+All summaries retain exact integer cents. `.streamlit/config.toml` sets the light
+theme and blue accent; launch from the project folder so Streamlit finds it.
+For a visual check, confirm the reporting period is **Jan 03, 2024 to Dec 31, 2024**,
+the two KPI cards sit side by side showing **Total Sales: $116,500** and
+**Total Orders: 482**, Monthly Sales spans the page, and the category and region
+areas sit side by side below it. The exact sales total is $116,500.21; only the
+card display is rounded. No comparison percentages are shown.
+
+### Monthly sales chart (Step 5)
+
+The full-width interactive line chart shows monthly sales in chronological order,
+with month/year labels and a sales axis in US dollars. Hover over a point to see
+the month's exact total, including cents. Use Plotly's toolbar to zoom or reset
+the view. Months with no transactions appear as zero within the reporting range.
+
+For a visual check, run the dashboard and confirm that January through December
+2024 appear in order, the blue line and axis labels are readable, and hovering
+shows a month/year and a dollar total with two decimal places. The automated
+page tests compare all plotted totals and tooltip text against the CSV and check
+a cross-year fixture with a missing month; browser appearance and interaction
+still require a visual check.
+
+### Category and region charts (Step 6)
+
+The two horizontal bar charts below the trend show every category and region in
+the CSV. Sales run from highest to lowest, top to bottom, with alphabetical order
+for ties. Sales axes include zero, and hovering over a bar shows the group name
+and exact dollar total including cents. Both charts use the same blue accent as
+the trend. Chart height grows with the number of groups to keep labels readable.
+
+For a visual check, run the dashboard and confirm both charts sit side by side,
+all five sample categories and four regions have readable labels, Electronics
+appears at the top of the category chart, and hover values show two decimal places.
+Check that the sales axes begin at zero and bars decrease from top to bottom.
+Automated page tests compare every bar and tooltip value against independent CSV
+totals and verify alphabetical ties, additional groups, and zero-sales groups.
+Browser automation was unavailable during TASK-5 implementation. Subsequent
+user verification of rendered order, readability, and hover tooltips is recorded
+under Step 7 below.
+
+### Complete dashboard verification (Step 7)
+
+Run the independent sample-data audit from the project folder:
+
+```powershell
+.\venv\Scripts\python.exe verify_dashboard.py
+```
+
+This checks the exact sales total, transaction count, all 12 monthly totals, all
+five categories, and all four regions against separate CSV/Decimal calculations.
+It also runs the page three times and reports Python-side timings. These timings
+exclude browser painting and do **not** prove the 5-second page-load or 2-second
+chart-render targets. The script is specific to the supplied sample CSV; update
+its sample expectations if you intentionally replace that dataset. Run it without
+Python's `-O` option, which disables its assertions.
+
+For further browser checks, start the app with the launch command above and open
+its local URL in a browser available to you. Record the browser, OS, date, and
+results in TASKS.md:
+
+1. Confirm the title, reporting period, two prominent cards, full-width trend,
+   and side-by-side breakdowns. Check labels for clipping at a desktop window size.
+2. Confirm January–December order and descending bars. Hover over each chart;
+   examples are January **$7,175.17**, Electronics **$42,683.67**, and North
+   **$38,857.24**. Check readable currency axes. Zoom/reset is not a TASK-6
+   acceptance requirement.
+3. Check for visible errors or warnings. Invalid-data stop behavior is covered
+   by temporary fixtures in `tests/test_app.py`; do not edit the supplied CSV
+   to test failures.
+4. If measuring performance, record the environment and method. The PRD targets
+   dashboard load within 5 seconds and chart rendering within 2 seconds of data
+   load. Python-side timings alone do not measure browser rendering.
+
+The user completed visual verification on 2026-09-18: the dashboard loaded,
+both KPI values were correct, January–December 2024 was readable, and both
+breakdowns displayed largest values at the top without clipping or overlap.
+The user subsequently confirmed correct hover tooltips on all three charts and
+successful compatibility checks in **Microsoft Edge** and **Google Chrome** on
+Windows; versions were not supplied. **Firefox was not tested** because it is not
+installed, and **Safari was not tested** because the user is using Windows.
+
+On refresh, the user observed loading within **about 5 seconds** and charts
+rendering within **about 2 seconds after the page loaded**. These approximate
+observations are consistent with the targets but do not establish the exact
+2-second interval after **data load**. The Python-side timings above cannot
+establish it either. No specific instrument or browser-console check is required
+by the PRD or plan. TASK-6 is complete based on the recorded checks and the
+user's explicit acceptance of these verification limits. Firefox and Safari
+remain untested, not claimed compatible. See TASKS.md for the full evidence.
+Cloud cold-start timing belongs to deployment verification; record it separately
+from normal loads.
+
 ## License
 
 This tutorial is provided for educational purposes.
