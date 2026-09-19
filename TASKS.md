@@ -37,6 +37,10 @@ Acceptance criteria:
 
 Verification: On 2026-09-19, the public URL returned HTTP 200. The response was a JavaScript page shell, so this check does not prove that the live KPIs, charts, or tooltips rendered. Browser control was unavailable for an independent interactive check. The user reported the dashboard live; the local visual, data, and tooltip evidence is recorded under TASK-6. Public browser interaction remains unverified in this record.
 
+Commit: `bd4eb3b` (TASK-7: Record live dashboard deployment)
+
+Notes: The deployment completed successfully, the user visually verified the public Streamlit dashboard, and the live URL is recorded above.
+
 ### TASK-6: Test and refine the dashboard (M6)
 
 Verify all PRD acceptance criteria and calculations against the CSV, using the expected sample results as a sanity check: approximately $116,500 in sales, 482 orders, Electronics as the top category, and all four regions. Refine the presentation, confirm there are no errors or warnings, and check compatibility with Chrome, Firefox, Safari, and Edge. Verify dashboard loading within 5 seconds and chart rendering within 2 seconds of data load.
