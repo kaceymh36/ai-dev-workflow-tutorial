@@ -1,10 +1,11 @@
 """Entry point for the ShopSmart sales dashboard."""
 
+from decimal import Decimal
 from pathlib import Path
 
 import streamlit as st
 
-from sales_data import SalesDataError, load_sales_data
+from sales_data import SalesDataError, load_sales_data, summarize_kpis
 
 st.set_page_config(page_title="ShopSmart Sales Dashboard", layout="wide")
 
@@ -23,14 +24,14 @@ st.caption(
     f"Reporting period: {min(data['date']):%b %d, %Y} to {max(data['date']):%b %d, %Y}"
 )
 
-# These spaces will receive KPI values and charts in the next milestones.
+kpis = summarize_kpis(data)
+# Convert exact cents to dollars only for display; formatting rounds to whole dollars.
+sales_dollars = Decimal(f"{kpis['total_sales_cents']}e-2")
 sales_column, orders_column = st.columns(2)
 with sales_column:
-    st.subheader("Total Sales")
-    st.caption("Sales total coming soon.")
+    st.metric("Total Sales", f"${sales_dollars:,.0f}", border=True)
 with orders_column:
-    st.subheader("Total Orders")
-    st.caption("Order count coming soon.")
+    st.metric("Total Orders", f"{kpis['total_orders']:,}", border=True)
 
 with st.container(border=True):
     st.subheader("Monthly Sales")

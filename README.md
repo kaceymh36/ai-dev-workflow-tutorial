@@ -111,8 +111,9 @@ Open [pre-work-setup.md](pre-work-setup.md) and work through it first, then cont
 ## Run the dashboard locally
 
 The page loads and validates the CSV, displays **ShopSmart Sales Dashboard** and
-its reporting period, and provides labeled spaces for the KPIs and charts.
-KPI values and chart rendering belong to TASK-3 through TASK-5 in [TASKS.md](TASKS.md).
+its reporting period, and shows Total Sales and Total Orders in two KPI cards.
+Sales are rounded to whole dollars for display only; calculations retain exact
+cents. Chart rendering belongs to TASK-4 and TASK-5 in [TASKS.md](TASKS.md).
 
 Use Python 3.11 or newer and run commands from the project folder. This project
 has been checked with Python 3.14.7 on Windows. Dependency versions are pinned
@@ -209,9 +210,11 @@ The summary functions in `sales_data.py` accept the validated, nonempty DataFram
 All summaries retain exact integer cents. `.streamlit/config.toml` sets the light
 theme and blue accent; launch from the project folder so Streamlit finds it.
 For a visual check, confirm the reporting period is **Jan 03, 2024 to Dec 31, 2024**,
-the two KPI areas sit side by side, Monthly Sales spans the page, and the category
-and region areas sit side by side below it. Placeholder text is expected until
-the later milestones add KPI values and charts.
+the two KPI cards sit side by side showing **Total Sales: $116,500** and
+**Total Orders: 482**, Monthly Sales spans the page, and the category and region
+areas sit side by side below it. The exact sales total is $116,500.21; only the
+card display is rounded. No comparison percentages are shown. Chart placeholder
+text is expected until the later milestones add charts.
 
 ## License
 

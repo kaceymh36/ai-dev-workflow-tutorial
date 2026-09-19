@@ -22,8 +22,12 @@ def test_page_loads_once_from_app_directory(tmp_path, monkeypatch):
     assert app.title[0].value == 'ShopSmart Sales Dashboard'
     assert app.caption[0].value == 'Reporting period: Jan 03, 2024 to Dec 31, 2024'
     assert [heading.value for heading in app.subheader] == [
-        'Total Sales', 'Total Orders', 'Monthly Sales', 'Sales by Category', 'Sales by Region',
+        'Monthly Sales', 'Sales by Category', 'Sales by Region',
     ]
+    assert [(metric.label, metric.value) for metric in app.metric] == [
+        ('Total Sales', '$116,500'), ('Total Orders', '482'),
+    ]
+    assert all(metric.delta == '' for metric in app.metric)
 
 
 def test_invalid_file_shows_actionable_error_and_stops(tmp_path):
