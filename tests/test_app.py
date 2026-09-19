@@ -59,7 +59,7 @@ def test_monthly_chart_matches_csv():
     assert not app.error
     assert not app.warning
     charts = app.get('plotly_chart')
-    assert len(charts) == 1
+    assert len(charts) == 3
     figure = json.loads(charts[0].proto.spec)
     trace = figure['data'][0]
     assert trace['x'] == [
@@ -95,3 +95,63 @@ def test_monthly_chart_spans_years_and_fills_only_internal_gaps(tmp_path):
     assert trace['y'] == [15.06, 0.0, 20.02]
     assert trace['customdata'] == ['$15.06', '$0.00', '$20.02']
     assert figure['layout']['xaxis']['categoryarray'] == trace['x']
+
+
+def assert_breakdown(chart, labels, amounts, axis_label):
+    figure = json.loads(chart.proto.spec)
+    trace = figure['data'][0]
+    assert trace['type'] == 'bar'
+    assert trace['orientation'] == 'h'
+    assert trace['y'] == labels
+    assert trace['x'] == [float(amount) for amount in amounts]
+    assert trace['customdata'] == [f'${amount:,.2f}' for amount in amounts]
+    assert '%{y}' in trace['hovertemplate']
+    assert '%{customdata}' in trace['hovertemplate']
+    assert figure['layout']['yaxis']['categoryarray'] == labels
+    assert figure['layout']['yaxis']['autorange'] == 'reversed'
+    assert figure['layout']['yaxis']['title']['text'] == axis_label
+    assert figure['layout']['xaxis']['title']['text'] == 'Sales (USD)'
+    assert figure['layout']['xaxis']['rangemode'] == 'tozero'
+
+
+def test_breakdowns_match_every_csv_group_and_total():
+    totals = {'category': {}, 'region': {}}
+    total_sales = Decimal('0')
+    with (APP_PATH.parent / 'data' / 'sales-data.csv').open(newline='') as source:
+        for row in csv.DictReader(source):
+            amount = Decimal(row['total_amount'])
+            total_sales += amount
+            for column, groups in totals.items():
+                groups[row[column]] = groups.get(row[column], Decimal('0')) + amount
+    app = AppTest.from_file(str(APP_PATH)).run()
+    assert not app.exception
+    assert not app.error
+    assert not app.warning
+    charts = app.get('plotly_chart')
+    assert len(charts) == 3
+    for index, (column, groups) in enumerate(totals.items(), start=1):
+        ordered = sorted(groups, key=lambda label: (-groups[label], label))
+        amounts = [groups[label] for label in ordered]
+        assert_breakdown(charts[index], ordered, amounts, column.title())
+        assert sum(amounts) == total_sales == Decimal('116500.21')
+
+
+def test_breakdowns_include_new_labels_and_sort_ties_alphabetically(tmp_path):
+    fixture = tmp_path / 'sales.csv'
+    fixture.write_text(
+        'date,order_id,product,category,region,quantity,unit_price,total_amount\n'
+        '2024-01-01,001,Item,Zebra,West,1,10.01,10.01\n'
+        '2024-01-02,002,Item,Alpha,East,1,10.01,10.01\n'
+        '2024-01-03,003,Item,New Category,New Region,1,20.02,20.02\n'
+        '2024-01-04,004,Item,Zero,Zero Region,1,0.00,0.00\n',
+        encoding='utf-8',
+    )
+    with patch('sales_data.load_sales_data', return_value=load_sales_data(fixture)):
+        app = AppTest.from_file(str(APP_PATH)).run()
+    assert not app.exception
+    assert not app.error
+    assert not app.warning
+    amounts = [Decimal(value) for value in ('20.02', '10.01', '10.01', '0.00')]
+    charts = app.get('plotly_chart')
+    assert_breakdown(charts[1], ['New Category', 'Alpha', 'Zebra', 'Zero'], amounts, 'Category')
+    assert_breakdown(charts[2], ['New Region', 'East', 'West', 'Zero Region'], amounts, 'Region')

@@ -6,7 +6,37 @@ from pathlib import Path
 import streamlit as st
 import plotly.graph_objects as go
 
-from sales_data import SalesDataError, load_sales_data, monthly_sales, summarize_kpis
+from sales_data import (
+    SalesDataError, load_sales_data, monthly_sales, sales_by_category,
+    sales_by_region, summarize_kpis,
+)
+
+
+def breakdown_chart(summary, column, label):
+    """Plot an already sorted summary, preserving exact cents in hover text."""
+    labels = summary[column].tolist()
+    amounts = [Decimal(f"{cents}e-2") for cents in summary['total_amount_cents']]
+    figure = go.Figure(go.Bar(
+        x=[float(amount) for amount in amounts],
+        y=labels,
+        orientation="h",
+        marker_color="#2563EB",
+        customdata=[f"${amount:,.2f}" for amount in amounts],
+        hovertemplate="%{y}<br>Sales: %{customdata}<extra></extra>",
+    ))
+    figure.update_layout(
+        template="plotly_white",
+        height=max(360, 48 * len(labels) + 100),
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(title="Sales (USD)", tickprefix="$", tickformat=",.0f",
+                   rangemode="tozero", gridcolor="#E5E7EB"),
+        # Reversing the categorical axis puts the first (largest) total on top.
+        yaxis=dict(title=label, type="category", categoryorder="array",
+                   categoryarray=labels, autorange="reversed", automargin=True,
+                   dtick=1, showgrid=False),
+        showlegend=False,
+    )
+    return figure
 
 st.set_page_config(page_title="ShopSmart Sales Dashboard", layout="wide")
 
@@ -65,8 +95,14 @@ category_column, region_column = st.columns(2)
 with category_column:
     with st.container(border=True):
         st.subheader("Sales by Category")
-        st.caption("Category breakdown coming soon.")
+        st.plotly_chart(
+            breakdown_chart(sales_by_category(data), "category", "Category"),
+            width="stretch", config={"displaylogo": False},
+        )
 with region_column:
     with st.container(border=True):
         st.subheader("Sales by Region")
-        st.caption("Regional breakdown coming soon.")
+        st.plotly_chart(
+            breakdown_chart(sales_by_region(data), "region", "Region"),
+            width="stretch", config={"displaylogo": False},
+        )

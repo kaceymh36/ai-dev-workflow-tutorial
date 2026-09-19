@@ -213,8 +213,7 @@ For a visual check, confirm the reporting period is **Jan 03, 2024 to Dec 31, 20
 the two KPI cards sit side by side showing **Total Sales: $116,500** and
 **Total Orders: 482**, Monthly Sales spans the page, and the category and region
 areas sit side by side below it. The exact sales total is $116,500.21; only the
-card display is rounded. No comparison percentages are shown. Category and region
-placeholder text remains until TASK-5.
+card display is rounded. No comparison percentages are shown.
 
 ### Monthly sales chart (Step 5)
 
@@ -229,6 +228,23 @@ shows a month/year and a dollar total with two decimal places. The automated
 page tests compare all plotted totals and tooltip text against the CSV and check
 a cross-year fixture with a missing month; browser appearance and interaction
 still require a visual check.
+
+### Category and region charts (Step 6)
+
+The two horizontal bar charts below the trend show every category and region in
+the CSV. Sales run from highest to lowest, top to bottom, with alphabetical order
+for ties. Sales axes include zero, and hovering over a bar shows the group name
+and exact dollar total including cents. Both charts use the same blue accent as
+the trend. Chart height grows with the number of groups to keep labels readable.
+
+For a visual check, run the dashboard and confirm both charts sit side by side,
+all five sample categories and four regions have readable labels, Electronics
+appears at the top of the category chart, and hover values show two decimal places.
+Check that the sales axes begin at zero and bars decrease from top to bottom.
+Automated page tests compare every bar and tooltip value against independent CSV
+totals and verify alphabetical ties, additional groups, and zero-sales groups.
+Actual rendered order, readability, and hover interaction still need a browser
+check; browser automation was unavailable during TASK-5 implementation.
 
 ## License
 
