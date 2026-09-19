@@ -14,15 +14,28 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-7: Deploy to Streamlit Community Cloud (M7)
-
-Prepare deployment configuration and instructions, deploy the dashboard, and verify that its KPIs and charts work at a publicly accessible URL. Record the shareable URL for stakeholder review.
+None.
 
 ## In Progress
 
 None.
 
 ## Done
+
+### TASK-7: Deploy to Streamlit Community Cloud (M7)
+
+Prepare deployment configuration and instructions, deploy the dashboard, and verify that its KPIs and charts work at a publicly accessible URL. Record the shareable URL for stakeholder review.
+
+Shareable URL: https://sales-dashboard-kaceyharris.streamlit.app/
+
+Acceptance criteria:
+
+- [x] The dashboard is deployed to Streamlit Community Cloud; the user reports it is live at the URL above.
+- [x] The public URL is recorded for stakeholder review and added near the top of `README.md`.
+- [x] Local verification confirms the CSV, both KPIs, and all three chart summaries; the TASK-6 audit and 70 tests passed.
+- [x] Deployment verification limits are recorded below.
+
+Verification: On 2026-09-19, the public URL returned HTTP 200. The response was a JavaScript page shell, so this check does not prove that the live KPIs, charts, or tooltips rendered. Browser control was unavailable for an independent interactive check. The user reported the dashboard live; the local visual, data, and tooltip evidence is recorded under TASK-6. Public browser interaction remains unverified in this record.
 
 ### TASK-6: Test and refine the dashboard (M6)
 
@@ -63,7 +76,7 @@ Timing evidence: Windows 11, Python 3.14.7, existing pinned environment, local s
 
 Verification rerun (2026-09-19): `venv\Scripts\python.exe -m pytest -q` — **70 passed**; `venv\Scripts\python.exe verify_dashboard.py` — **passed**, with CSV timings **0.006 / 0.005 / 0.006 s** and AppTest totals **0.387 / 0.198 / 0.219 s**; `venv\Scripts\python.exe -m pip check` — **No broken requirements found**. These do not measure browser paint.
 
-The user explicitly requested TASK-6 completion with Firefox and Safari recorded as unavailable and the existing manual performance evidence used without imposing a specific instrumentation or console-check method. This is an acceptance of the disclosed verification limits, not a claim that untested browsers passed or that the precise data-load-to-chart interval was measured. No application code changes were needed. TASK-7 remains To Do.
+The user explicitly requested TASK-6 completion with Firefox and Safari recorded as unavailable and the existing manual performance evidence used without imposing a specific instrumentation or console-check method. This is an acceptance of the disclosed verification limits, not a claim that untested browsers passed or that the precise data-load-to-chart interval was measured. No application code changes were needed.
 
 ### TASK-5: Build category and region breakdowns (M5)
 
