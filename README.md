@@ -213,8 +213,22 @@ For a visual check, confirm the reporting period is **Jan 03, 2024 to Dec 31, 20
 the two KPI cards sit side by side showing **Total Sales: $116,500** and
 **Total Orders: 482**, Monthly Sales spans the page, and the category and region
 areas sit side by side below it. The exact sales total is $116,500.21; only the
-card display is rounded. No comparison percentages are shown. Chart placeholder
-text is expected until the later milestones add charts.
+card display is rounded. No comparison percentages are shown. Category and region
+placeholder text remains until TASK-5.
+
+### Monthly sales chart (Step 5)
+
+The full-width interactive line chart shows monthly sales in chronological order,
+with month/year labels and a sales axis in US dollars. Hover over a point to see
+the month's exact total, including cents. Use Plotly's toolbar to zoom or reset
+the view. Months with no transactions appear as zero within the reporting range.
+
+For a visual check, run the dashboard and confirm that January through December
+2024 appear in order, the blue line and axis labels are readable, and hovering
+shows a month/year and a dollar total with two decimal places. The automated
+page tests compare all plotted totals and tooltip text against the CSV and check
+a cross-year fixture with a missing month; browser appearance and interaction
+still require a visual check.
 
 ## License
 

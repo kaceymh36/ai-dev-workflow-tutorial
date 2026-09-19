@@ -4,8 +4,9 @@ from decimal import Decimal
 from pathlib import Path
 
 import streamlit as st
+import plotly.graph_objects as go
 
-from sales_data import SalesDataError, load_sales_data, summarize_kpis
+from sales_data import SalesDataError, load_sales_data, monthly_sales, summarize_kpis
 
 st.set_page_config(page_title="ShopSmart Sales Dashboard", layout="wide")
 
@@ -35,7 +36,30 @@ with orders_column:
 
 with st.container(border=True):
     st.subheader("Monthly Sales")
-    st.caption("Monthly sales chart coming soon.")
+    trend = monthly_sales(data)
+    # Keep exact currency text for hover; floats are only used for plotting.
+    monthly_dollars = [Decimal(f"{cents}e-2") for cents in trend['total_amount_cents']]
+    month_labels = [month.strftime("%b %Y") for month in trend['month']]
+    figure = go.Figure(go.Scatter(
+        x=month_labels,
+        y=[float(amount) for amount in monthly_dollars],
+        mode="lines+markers",
+        line=dict(color="#2563EB", width=2),
+        marker=dict(size=6),
+        customdata=[f"${amount:,.2f}" for amount in monthly_dollars],
+        hovertemplate="%{x}<br>Sales: %{customdata}<extra></extra>",
+    ))
+    figure.update_layout(
+        template="plotly_white",
+        height=360,
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(title="Month", type="category", categoryorder="array",
+                   categoryarray=month_labels, showgrid=False),
+        yaxis=dict(title="Sales (USD)", tickprefix="$", tickformat=",.0f",
+                   rangemode="tozero", gridcolor="#E5E7EB"),
+        showlegend=False,
+    )
+    st.plotly_chart(figure, width="stretch", config={"displaylogo": False})
 
 category_column, region_column = st.columns(2)
 with category_column:
