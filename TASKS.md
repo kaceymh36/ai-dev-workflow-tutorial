@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-6: Test and refine the dashboard (M6)
-
-Verify all PRD acceptance criteria and calculations against the CSV, using the expected sample results as a sanity check: approximately $116,500 in sales, 482 orders, Electronics as the top category, and all four regions. Refine the presentation, confirm there are no errors or warnings, and check compatibility with Chrome, Firefox, Safari, and Edge. Verify dashboard loading within 5 seconds and chart rendering within 2 seconds of data load.
-
 ### TASK-7: Deploy to Streamlit Community Cloud (M7)
 
 Prepare deployment configuration and instructions, deploy the dashboard, and verify that its KPIs and charts work at a publicly accessible URL. Record the shareable URL for stakeholder review.
@@ -27,6 +23,47 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 None.
 
 ## Done
+
+### TASK-6: Test and refine the dashboard (M6)
+
+Verify all PRD acceptance criteria and calculations against the CSV, using the expected sample results as a sanity check: approximately $116,500 in sales, 482 orders, Electronics as the top category, and all four regions. Refine the presentation, confirm there are no errors or warnings, and check compatibility with Chrome, Firefox, Safari, and Edge. Verify dashboard loading within 5 seconds and chart rendering within 2 seconds of data load.
+
+Scope: implementation plan Step 7. Started 2026-09-18. Completed 2026-09-19 with the verification limits recorded below, as explicitly accepted by the user.
+
+Acceptance criteria:
+
+- [x] Complete pytest suite and independent CSV audit pass; both KPIs and every chart summary match the sample data.
+- [x] User verified the complete layout, chart order, readable labels, and hover tooltips in Chrome and Edge.
+- [x] Valid page checks show no errors or warnings; the user reported nothing visibly broken.
+- [x] Performance observations and their measurement limits are recorded below.
+- [x] Firefox and Safari are recorded as unavailable and untested, as accepted by the user.
+- [x] Reproducible audit instructions and verification evidence are documented.
+
+Commit: `4f5390205b5a921c5c7b39bd2d1bec0db5d4fe77` (TASK-6: Add dashboard verification audit and guidance)
+
+Notes: No Claude-specific implementation error was identified. The user directed that Firefox and Safari be recorded as untested, accepted completion with the existing approximate performance evidence, and clarified that an exact instrumented method and browser-console check are not separate requirements. The precise data-load-to-chart interval remains unmeasured; see the evidence below. No application code changes were needed.
+
+Step 7 verification (2026-09-18):
+
+- [x] Full suite: `venv\Scripts\python.exe -m pytest -q` — **70 passed in 3.02 seconds**. Includes independent comparisons of plotted values and tooltip text, validation failures, and stopping the page before metrics/charts on invalid input.
+- [x] `venv\Scripts\python.exe -m pip check` — **No broken requirements found**.
+- [x] Added `verify_dashboard.py`; run with `venv\Scripts\python.exe verify_dashboard.py`. Independent standard-library CSV/Decimal totals match both KPIs and every monthly, category, and region summary. All three summaries sum to **$116,500.21**, with **482 orders**.
+- [x] Sample sanity checks: Electronics leads at **$42,683.67**; all five categories are included. Regions descend North **$38,857.24**, West **$27,463.74**, East **$26,783.53**, South **$23,395.70**. All 12 monthly totals match; January is **$7,175.17**, December **$15,186.34**.
+- [x] Code/design review: FR-1 through FR-5 calculations, labels, formatting, chart ordering/configuration, and complete CSV validation are covered. Standard Streamlit layout and light/blue theme match the design in code. Calculation and rendering modules remain separate; no application changes were needed based on these checks.
+- [x] README includes reproducible audit instructions and a manual browser/performance checklist.
+- [x] Local server launched on `http://127.0.0.1:8504` with no startup warnings; `/` returned HTTP **200**, and `/_stcore/health` returned **ok**. These verify server availability, not rendered page behavior. `git diff --check` passed, with only Git's LF-to-CRLF conversion notices.
+- [x] Visual verification supplied by the user (2026-09-18): dashboard loaded successfully; Total Sales displays **$116,500** and Total Orders **482**. Monthly Sales displays **Jan 2024 through Dec 2024** and is readable. Category and region charts display correctly with the largest values at the top. Nothing appears cut off, overlapping, or broken. Accepted as TASK-6 visual verification, including the appearance/readability/order checks carried from earlier milestones. Browser name/version was not supplied.
+- [x] User tested hover tooltips on Monthly Sales, Sales by Category, and Sales by Region; all displayed correctly. Zoom/reset is not a TASK-6 acceptance requirement and has been removed from the checklist.
+- [x] User reports successful compatibility checks in **Microsoft Edge** and **Google Chrome** on Windows. Browser versions were not supplied.
+- [x] Compatibility evidence: Chrome and Edge passed the user's manual checks. **Firefox was not tested** because it is not installed; **Safari was not tested** because the user is on Windows. Neither is claimed to have passed. The user explicitly accepted recording these as unavailable without installing browsers.
+- [x] Performance evidence and limit: on refresh, the user observed dashboard loading within **about 5 seconds** and charts rendering within **about 2 seconds after the page loaded**. These observations are consistent with the PRD targets. They are approximate; the chart observation does **not** establish the exact 2-second interval after **data load**. Backend timings below are diagnostic only. The user accepted completion with this disclosed measurement limit; no exact instrumented method is required by the PRD or plan.
+- [x] Errors/warnings: the user's visual review found nothing broken; valid AppTest pages have no exceptions, errors, or warnings. The test harness emits Streamlit's explicitly ignorable bare-mode `missing ScriptRunContext` message. A browser-console check was not performed and is not separately required by the PRD or plan.
+
+Timing evidence: Windows 11, Python 3.14.7, existing pinned environment, local sample CSV. `verify_dashboard.py` uses `perf_counter` around three sequential AppTest runs in one process and a wrapper around the CSV loader. CSV times: **0.004 / 0.006 / 0.005 s**; AppTest totals: **0.424 / 0.185 / 0.253 s**; data-loaded to AppTest completion: **0.141 / 0.046 / 0.051 s**. These include Python chart construction/serialization, not network transfer or browser paint. Cloud startup was not tested. Python execution needed sandbox escalation to access the existing interpreter.
+
+Verification rerun (2026-09-19): `venv\Scripts\python.exe -m pytest -q` — **70 passed**; `venv\Scripts\python.exe verify_dashboard.py` — **passed**, with CSV timings **0.006 / 0.005 / 0.006 s** and AppTest totals **0.387 / 0.198 / 0.219 s**; `venv\Scripts\python.exe -m pip check` — **No broken requirements found**. These do not measure browser paint.
+
+The user explicitly requested TASK-6 completion with Firefox and Safari recorded as unavailable and the existing manual performance evidence used without imposing a specific instrumentation or console-check method. This is an acceptance of the disclosed verification limits, not a claim that untested browsers passed or that the precise data-load-to-chart interval was measured. No application code changes were needed. TASK-7 remains To Do.
 
 ### TASK-5: Build category and region breakdowns (M5)
 
