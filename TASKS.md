@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-2: Load the data and build the dashboard structure (M2)
-
-Load `data/sales-data.csv`, validate the required columns, and parse date, numeric, and categorical values correctly. Create the basic Streamlit layout and prepare aggregations for the metrics and charts.
-
 ### TASK-3: Implement KPI cards (M3)
 
 Display Total Sales as the sum of `total_amount` and Total Orders as the transaction count. Show both prominently with currency formatting and thousands separators as appropriate.
@@ -40,7 +36,50 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 
 ## In Progress
 
+None.
+
 ## Done
+
+### TASK-2: Load the data and build the dashboard structure (M2)
+
+Load `data/sales-data.csv`, validate the required columns, and parse date, numeric, and categorical values correctly. Create the basic Streamlit layout and prepare aggregations for the metrics and charts.
+
+Acceptance criteria:
+
+- [x] Complete CSV loads with required-column, value, date, numeric, and unique-ID validation.
+- [x] Monetary precision is preserved as integer cents; invalid input gives actionable errors without partial results.
+- [x] KPI, monthly, category, and region summaries are implemented and tested, including missing months and deterministic sorting.
+- [x] Basic page structure, reporting-period caption, light theme, and blue accent are implemented.
+- [x] Data loads once per run from an application-relative path; expected errors stop the page before KPI/chart areas.
+- [x] All 66 automated tests pass; usage instructions and verification evidence are recorded.
+- [x] Milestone closed at the user's explicit request, with the unperformed browser visual check disclosed below.
+
+Commit: `b61519cf4fb36e97e62cbd9b2ebce251e98620aa` (TASK-2: Load sales data and build dashboard structure)
+
+Notes: Codex left TASK-2 implementation uncommitted in prior turns; this is corrected by the code commit above. Codex initially assumed incorrect reporting-period dates in a test and corrected them to Jan 03 through Dec 31, 2024 after the test failed. No user code changes were reported. Moved to Done at the user's explicit request; browser visual verification was unavailable and is not claimed as passed. Carry that visual check into TASK-6.
+
+Step 2 complete: CSV loading and validation (2026-09-16).
+
+- Wrote `tests/test_sales_data.py` first and confirmed the initial run failed because `sales_data` did not yet exist. Implemented the loader, then reran the tests successfully.
+- Added `load_sales_data(path)` and `SalesDataError` in `sales_data.py`, with no Streamlit imports. Invalid input raises an actionable explanation without returning partial data.
+- Validates the eight required columns, nonblank values, ISO dates, finite numbers, integer quantities, and unique text order IDs. Rejects missing, unreadable, malformed, empty, or invalid files; messages include columns and CSV row numbers where applicable.
+- Parses money with Decimal and stores Python integer cents, preserving precision even for amounts beyond fixed-width integer limits. Fractions of a cent are rejected without rounding.
+- `venv\Scripts\python.exe -m pytest tests/test_sales_data.py -q`: **59 passed** on Python 3.14.7 / Windows. Tests use temporary fixtures for validation failures and leave the supplied CSV unchanged.
+- An independent `csv.DictReader` / Decimal calculation in the tests confirmed all **482 transactions**, preserved order IDs, and **$116,500.21** matching the loader's **11,650,021 cents**.
+- Updated README test instructions and documented the loader's returned data format. The starter app is unchanged.
+- Step 3 implementation and automated checks are complete (2026-09-18); visual verification remains outstanding as described below.
+
+Step 3 implementation and verification (2026-09-18):
+
+- Added `summarize_kpis`, `monthly_sales`, `sales_by_category`, and `sales_by_region`. Revenue remains exact integer cents, orders count transaction rows, missing months within the observed range get zero, and breakdowns sort by sales descending with alphabetical ties.
+- Added hand-calculated fixture tests for cents, row counts, multi-year grouping, missing months, all breakdown labels, stable ties, and amounts beyond fixed-width integer limits. Confirmed the new tests failed before implementing the functions.
+- Connected `app.py` to the loader once per run using an application-relative CSV path. Added the reporting period, two KPI areas, a full-width monthly area, two side-by-side breakdown areas, and a light theme with blue accent. KPI values and charts remain scoped to TASK-3 through TASK-5.
+- Added `tests/test_app.py`: normal data renders the expected title and Jan 03, 2024 to Dec 31, 2024 reporting period even from another working directory. A temporary invalid CSV produces an actionable error and stops before KPI/chart areas; the supplied CSV is unchanged.
+- `venv\Scripts\python.exe -m pytest -q`: **66 passed**. AppTest reported no page exceptions, errors, or warnings for valid data. Its bare-mode ScriptRunContext warning is identified by Streamlit as ignorable.
+- Local Streamlit server on port 8503 started successfully; `/` returned HTTP 200 and `/_stcore/health` returned `ok`. `git diff --check` passed (Git printed only LF-to-CRLF conversion notices).
+- Updated README with the current page behavior, summary function contracts, test commands, and visual-check instructions.
+- **Verification limitation:** browser automation reported no available browser. Visual inspection of the light theme and layout remains unperformed and is carried into TASK-6 when closing TASK-2 at the user's request.
+- Pre-commit verification (2026-09-18): reran the complete suite, **66 passed**; `git diff --check` passed. Code, configuration, tests, and README are included in the milestone code commit above.
 
 ### TASK-1: Set up the environment and project (M1)
 
