@@ -243,8 +243,61 @@ appears at the top of the category chart, and hover values show two decimal plac
 Check that the sales axes begin at zero and bars decrease from top to bottom.
 Automated page tests compare every bar and tooltip value against independent CSV
 totals and verify alphabetical ties, additional groups, and zero-sales groups.
-Actual rendered order, readability, and hover interaction still need a browser
-check; browser automation was unavailable during TASK-5 implementation.
+Browser automation was unavailable during TASK-5 implementation. Subsequent
+user verification of rendered order, readability, and hover tooltips is recorded
+under Step 7 below.
+
+### Complete dashboard verification (Step 7)
+
+Run the independent sample-data audit from the project folder:
+
+```powershell
+.\venv\Scripts\python.exe verify_dashboard.py
+```
+
+This checks the exact sales total, transaction count, all 12 monthly totals, all
+five categories, and all four regions against separate CSV/Decimal calculations.
+It also runs the page three times and reports Python-side timings. These timings
+exclude browser painting and do **not** prove the 5-second page-load or 2-second
+chart-render targets. The script is specific to the supplied sample CSV; update
+its sample expectations if you intentionally replace that dataset. Run it without
+Python's `-O` option, which disables its assertions.
+
+For further browser checks, start the app with the launch command above and open
+its local URL in a browser available to you. Record the browser, OS, date, and
+results in TASKS.md:
+
+1. Confirm the title, reporting period, two prominent cards, full-width trend,
+   and side-by-side breakdowns. Check labels for clipping at a desktop window size.
+2. Confirm January–December order and descending bars. Hover over each chart;
+   examples are January **$7,175.17**, Electronics **$42,683.67**, and North
+   **$38,857.24**. Check readable currency axes. Zoom/reset is not a TASK-6
+   acceptance requirement.
+3. Check for visible errors or warnings. Invalid-data stop behavior is covered
+   by temporary fixtures in `tests/test_app.py`; do not edit the supplied CSV
+   to test failures.
+4. If measuring performance, record the environment and method. The PRD targets
+   dashboard load within 5 seconds and chart rendering within 2 seconds of data
+   load. Python-side timings alone do not measure browser rendering.
+
+The user completed visual verification on 2026-09-18: the dashboard loaded,
+both KPI values were correct, January–December 2024 was readable, and both
+breakdowns displayed largest values at the top without clipping or overlap.
+The user subsequently confirmed correct hover tooltips on all three charts and
+successful compatibility checks in **Microsoft Edge** and **Google Chrome** on
+Windows; versions were not supplied. **Firefox was not tested** because it is not
+installed, and **Safari was not tested** because the user is using Windows.
+
+On refresh, the user observed loading within **about 5 seconds** and charts
+rendering within **about 2 seconds after the page loaded**. These approximate
+observations are consistent with the targets but do not establish the exact
+2-second interval after **data load**. The Python-side timings above cannot
+establish it either. No specific instrument or browser-console check is required
+by the PRD or plan. TASK-6 is complete based on the recorded checks and the
+user's explicit acceptance of these verification limits. Firefox and Safari
+remain untested, not claimed compatible. See TASKS.md for the full evidence.
+Cloud cold-start timing belongs to deployment verification; record it separately
+from normal loads.
 
 ## License
 
