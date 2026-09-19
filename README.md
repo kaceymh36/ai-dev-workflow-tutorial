@@ -110,8 +110,9 @@ Open [pre-work-setup.md](pre-work-setup.md) and work through it first, then cont
 
 ## Run the dashboard locally
 
-The starter page displays **ShopSmart Sales Dashboard** and a setup message.
-Data loading, metrics, and charts belong to later milestones in [TASKS.md](TASKS.md).
+The page loads and validates the CSV, displays **ShopSmart Sales Dashboard** and
+its reporting period, and provides labeled spaces for the KPIs and charts.
+KPI values and chart rendering belong to TASK-3 through TASK-5 in [TASKS.md](TASKS.md).
 
 Use Python 3.11 or newer and run commands from the project folder. This project
 has been checked with Python 3.14.7 on Windows. Dependency versions are pinned
@@ -149,10 +150,10 @@ Keep the terminal open while using the dashboard; press **Ctrl+C** to stop it.
 
 ### Verify and run tests
 
-Check the starter page with Streamlit's built-in test runner:
+Check the page and invalid-data handling with Streamlit's built-in test runner:
 
 ```powershell
-.\venv\Scripts\python.exe -c "from streamlit.testing.v1 import AppTest; app = AppTest.from_file('app.py').run(); assert not app.exception; assert not app.error; assert not app.warning; assert app.title[0].value == 'ShopSmart Sales Dashboard'; print('Starter page check passed')"
+.\venv\Scripts\python.exe -m pytest tests/test_app.py -q
 ```
 
 The test runner may emit a `missing ScriptRunContext` warning identified by
@@ -164,12 +165,53 @@ Run the project test suite with:
 .\venv\Scripts\python.exe -m pytest -q
 ```
 
-There are no pytest tests at TASK-1, so this currently reports no tests collected
-(exit code 5). Data validation and calculation tests will be added in TASK-2.
+The data tests cover CSV validation and exact summary calculations using temporary
+files without changing the supplied dataset. To run just these tests, use:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest tests/test_sales_data.py -q
+```
 
 On macOS/Linux, create the environment with `python3 -m venv venv` and replace
 `.\venv\Scripts\python.exe` in the commands above with `venv/bin/python`.
 Those platforms have not yet been verified for this project.
+
+### CSV loader (Step 2)
+
+`sales_data.load_sales_data(path)` validates the complete UTF-8 CSV and returns
+a Pandas DataFrame, or raises `SalesDataError` with a correction hint. The page loads
+the CSV once per run using a path relative to `app.py`. Invalid input displays the
+explanation and stops before the KPI and chart areas are rendered.
+
+The loader requires all eight columns: `date`, `order_id`, `product`, `category`,
+`region`, `quantity`, `unit_price`, and `total_amount`. Required values cannot be
+blank. Dates use `YYYY-MM-DD`, IDs must be unique, quantities must be whole
+numbers, and numeric values must be finite. Extra columns are allowed and omitted.
+
+Text is trimmed, IDs retain leading zeros, and dates become Python date values.
+Money is stored as exact Python integers in `unit_price_cents` and
+`total_amount_cents`, replacing the dollar columns. Fractions of a cent are
+rejected rather than rounded. Revenue uses the supplied `total_amount` rather
+than recomputing price times quantity. Dollar formatting belongs to the UI.
+
+### Summary functions and page structure (Step 3)
+
+The summary functions in `sales_data.py` accept the validated, nonempty DataFrame:
+
+- `summarize_kpis(data)` returns `total_sales_cents` and `total_orders` in a dictionary.
+- `monthly_sales(data)` returns a DataFrame with `month` (the first day of each
+  month) and `total_amount_cents`. It separates years, sorts chronologically, and
+  fills missing months with zero only between the first and last observed months.
+- `sales_by_category(data)` and `sales_by_region(data)` return DataFrames with
+  the grouping column and `total_amount_cents`, sorted by descending sales and
+  alphabetically for ties. Every category and region is included.
+
+All summaries retain exact integer cents. `.streamlit/config.toml` sets the light
+theme and blue accent; launch from the project folder so Streamlit finds it.
+For a visual check, confirm the reporting period is **Jan 03, 2024 to Dec 31, 2024**,
+the two KPI areas sit side by side, Monthly Sales spans the page, and the category
+and region areas sit side by side below it. Placeholder text is expected until
+the later milestones add KPI values and charts.
 
 ## License
 
