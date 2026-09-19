@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-3: Implement KPI cards (M3)
-
-Display Total Sales as the sum of `total_amount` and Total Orders as the transaction count. Show both prominently with currency formatting and thousands separators as appropriate.
-
 ### TASK-4: Build the sales trend chart (M4)
 
 Create an interactive line chart of daily or monthly sales, ordered by time, with labeled time and sales axes and tooltips showing exact values.
@@ -39,6 +35,38 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 None.
 
 ## Done
+
+### TASK-3: Implement KPI cards (M3)
+
+Display Total Sales as the sum of `total_amount` and Total Orders as the transaction count. Show both prominently with currency formatting and thousands separators as appropriate.
+
+Scope: implementation plan Step 4. Started 2026-09-18.
+
+Acceptance criteria:
+
+- [x] Total Sales uses the tested sum of `total_amount`; Total Orders counts transaction rows.
+- [x] Two prominent, side-by-side metric cards display labeled totals without undefined comparison percentages.
+- [x] Sales display a dollar sign, thousands separators, and whole-dollar rounding; orders display an integer with separators.
+- [x] Display rounding preserves exact underlying calculations; CSV totals independently verified as $116,500.21 and 482 orders.
+- [x] All 66 automated tests pass; formatting checks and README instructions are updated.
+- [x] Milestone closed at the user's explicit request, with the unrecorded browser visual check disclosed below and carried into TASK-6.
+
+Commit: `031c51df3dcb84ed328c4612d99d2008f0eeb65e` (TASK-3: Implement sales and order KPI cards)
+
+Notes: Codex initially left the TASK-3 implementation uncommitted; this is corrected by the code commit above. No user code changes were reported. The app was launched for user testing and its health check returned `ok`, but no visual-test result was explicitly recorded. Moved to Done at the user's explicit request; visual verification is not claimed as passed and is carried into TASK-6.
+
+Step 4 implementation and automated verification (2026-09-18):
+
+- Connected two side-by-side, bordered Streamlit metric cards to `summarize_kpis`.
+- Total Sales displays **$116,500**; Total Orders displays **482**. Sales use whole-dollar rounding and thousands separators; orders use integer formatting with separators. No comparison percentages are shown.
+- Formatting uses Decimal at the UI boundary; the summary remains **11,650,021 cents**. No calculation changes were needed.
+- Updated the existing page test to check KPI labels, displayed values, and absent comparison values; updated README behavior and visual-check instructions.
+- `venv\Scripts\python.exe -m pytest -q`: **66 passed**. Tests required execution outside the sandbox because it denied access to the existing Python interpreter.
+- Independent `csv.DictReader` / Decimal calculation confirmed **$116,500.21** and **482 transactions**, matching the displayed cards and exact summary.
+- Additional AppTest checks passed for rounding $1,234.49 down to $1,234, rounding $1,234.51 up to $1,235, displaying 1,234 orders, and omitting comparison values. Valid pages had no exceptions, errors, or warnings; the test harness emitted only Streamlit's ignorable bare-mode ScriptRunContext warning.
+- `git diff --check` passed, with only Git's LF-to-CRLF conversion notices.
+- Pre-commit verification (2026-09-18): all **66 tests passed** again and `git diff --check` passed. Code, tests, and README are included in the milestone code commit above.
+- **Verification limitation:** browser automation returned no available browsers. Card prominence, spacing, and formatting still require a recorded visual check in TASK-6; the user requested TASK-3 be moved to Done.
 
 ### TASK-2: Load the data and build the dashboard structure (M2)
 
