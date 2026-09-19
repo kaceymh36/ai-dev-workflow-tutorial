@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-5: Build category and region breakdowns (M5)
-
-Create interactive bar charts showing sales for every category and region in the dataset. Sort each chart from highest to lowest sales and include clear labels and exact-value tooltips.
-
 ### TASK-6: Test and refine the dashboard (M6)
 
 Verify all PRD acceptance criteria and calculations against the CSV, using the expected sample results as a sanity check: approximately $116,500 in sales, 482 orders, Electronics as the top category, and all four regions. Refine the presentation, confirm there are no errors or warnings, and check compatibility with Chrome, Firefox, Safari, and Edge. Verify dashboard loading within 5 seconds and chart rendering within 2 seconds of data load.
@@ -31,6 +27,36 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 None.
 
 ## Done
+
+### TASK-5: Build category and region breakdowns (M5)
+
+Create interactive bar charts showing sales for every category and region in the dataset. Sort each chart from highest to lowest sales and include clear labels and exact-value tooltips.
+
+Scope: implementation plan Step 6. Started 2026-09-18.
+
+Acceptance criteria:
+
+- [x] Side-by-side horizontal charts include every category and region.
+- [x] Chart configuration places highest sales at the top, with alphabetical ordering for ties.
+- [x] Numeric axes include zero, axes are labeled, and hover values preserve cents.
+- [x] Both breakdowns match the CSV and sum to Total Sales.
+- [x] All 70 automated tests pass; README instructions and verification evidence are updated.
+- [x] Milestone closed at the user's explicit request, with the unrecorded browser visual check disclosed below and carried into TASK-6.
+
+Commit: `70698753e3b55a316e28e650d15644cdf2ed12b2` (TASK-5: Implement category and region sales charts)
+
+Notes: Codex initially left the TASK-5 implementation uncommitted; this is corrected by the code commit above. No user code changes were reported or found in the reviewed diff. The app was launched for user testing and its health check returned `ok`, but no visual-test result was explicitly recorded. Moved to Done at the user's explicit request; visual verification is not claimed as passed and is carried into TASK-6.
+
+Step 6 implementation and automated verification (2026-09-18):
+
+- Replaced both placeholders with horizontal Plotly bar charts using the existing category and region summaries, placed side by side below the trend.
+- Added a small shared chart function in `app.py`. Explicit category order and a reversed vertical axis put descending totals at the top; the summaries retain alphabetical ties. Automatic label margins and height based on group count support readability.
+- Used the existing blue accent and light chart theme, labeled axes, zero-inclusive sales axes, and exact two-decimal currency hover text. Calculations remain integer cents; floats are only chart coordinates.
+- Added page tests comparing every category and region bar and hover value independently against the CSV. Both breakdowns total **$116,500.21**. A temporary fixture verifies new labels, alphabetical ties, and zero-sales groups.
+- `venv\Scripts\python.exe -m pytest -q`: **70 passed**. Execution required access outside the sandbox to the existing Python interpreter. Valid AppTest pages had no exceptions, errors, or warnings.
+- Updated README with chart behavior and visual-check instructions.
+- Pre-commit verification (2026-09-18): all **70 tests passed** again and `git diff --check` passed, with only Git's LF-to-CRLF conversion notices. Code, tests, and README are included in the milestone code commit above, pushed to `origin/feature/sales-dashboard`.
+- **Verification limitation:** browser automation returned no available browsers or apps. Actual rendered order, label readability, and hover interaction remain unverified. This check is carried into TASK-6 when closing TASK-5 at the user's request.
 
 ### TASK-4: Build the sales trend chart (M4)
 
