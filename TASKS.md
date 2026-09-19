@@ -14,10 +14,6 @@ Before any milestone moves to Done:
 
 ## To Do
 
-### TASK-4: Build the sales trend chart (M4)
-
-Create an interactive line chart of daily or monthly sales, ordered by time, with labeled time and sales axes and tooltips showing exact values.
-
 ### TASK-5: Build category and region breakdowns (M5)
 
 Create interactive bar charts showing sales for every category and region in the dataset. Sort each chart from highest to lowest sales and include clear labels and exact-value tooltips.
@@ -35,6 +31,37 @@ Prepare deployment configuration and instructions, deploy the dashboard, and ver
 None.
 
 ## Done
+
+### TASK-4: Build the sales trend chart (M4)
+
+Create an interactive line chart of daily or monthly sales, ordered by time, with labeled time and sales axes and tooltips showing exact values.
+
+Scope: implementation plan Step 5. Started 2026-09-18.
+
+Acceptance criteria:
+
+- [x] Full-width interactive Plotly line chart uses the tested monthly sales summary.
+- [x] Month/year labels follow chronological order, including zero-valued missing months only within the observed range.
+- [x] Month and Sales (USD) axes are labeled, sales ticks use dollar formatting, and tooltip text preserves cents.
+- [x] Restrained blue styling and a light chart theme are implemented.
+- [x] All plotted sample months and hover totals match independent CSV calculations; a cross-year missing-month fixture passes.
+- [x] All 68 automated tests pass; README instructions and verification evidence are updated.
+- [x] Milestone closed at the user's explicit request, with the unrecorded browser visual check disclosed below and carried into TASK-6.
+
+Commit: `f3066e204aba48b55db49c2464c52d8d9e2a9632` (TASK-4: Implement monthly sales trend chart)
+
+Notes: Codex initially left the TASK-4 implementation uncommitted; this is corrected by the code commit above. No user code changes were reported or found in the reviewed diff. The app was launched for user testing and its health check returned `ok`, but no visual-test result was explicitly recorded. Moved to Done at the user's explicit request; visual verification is not claimed as passed and is carried into TASK-6.
+
+Step 5 implementation and automated verification (2026-09-18):
+
+- Replaced the monthly placeholder with a full-width Plotly line chart using the tested monthly summary, a restrained blue line, and visible point markers.
+- Month/year labels follow chronological summary order. Axes are labeled Month and Sales (USD), with dollar ticks and exact two-decimal currency hover text.
+- Calculations remain integer cents; Decimal produces hover text and floats are used only for chart coordinates.
+- Added page tests comparing all 12 plotted months and hover totals independently against the CSV, plus an out-of-order cross-year fixture verifying December $15.06, missing January $0.00, and February $20.02 with no extra months.
+- `venv\Scripts\python.exe -m pytest -q`: **68 passed**. Execution required access outside the sandbox to the existing Python interpreter. Valid AppTest pages had no exceptions, errors, or warnings.
+- Updated README with chart behavior, interaction, and visual-check instructions.
+- Pre-commit verification (2026-09-18): all **68 tests passed** again and `git diff --check` passed, with only Git's LF-to-CRLF conversion notices. Code, tests, and README are included in the milestone code commit above, pushed to `origin/feature/sales-dashboard`.
+- **Verification limitation:** browser automation returned no available browsers or apps. Actual appearance and hover interaction could not be visually verified. This check is carried into TASK-6 when closing TASK-4 at the user's request.
 
 ### TASK-3: Implement KPI cards (M3)
 
